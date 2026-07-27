@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: telemetry_events
+        loaded_at_field: ingested_at
+        freshness:
+          warn_after: {count: 30, period: minute}
+          error_after: {count: 2, period: hour}
+        columns:
+          - name: event_id
+            tests: [not_null, unique]
+          - name: event_ts
+            tests: [not_null]
+          - name: machine_id
+            tests: [not_null]
+          - name: status
+            tests:
+              - accepted_values:
+                  values: ["healthy", "warning", "critical"]

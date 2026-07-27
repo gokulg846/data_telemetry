@@ -1,0 +1,9 @@
+.git
+.github
+.venv
+.env
+__pycache__
+dbt_project/logs
+dbt_project/target
+terraform/.terraform
+*.tfstate*

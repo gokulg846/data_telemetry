@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data-telemetry"
+version = "0.1.0"
+description = "Industrial telemetry ETL pipeline with S3, Postgres, dbt, Prefect, and Streamlit"
+requires-python = ">=3.9"
+dependencies = [
+  "boto3>=1.34,<2",
+  "dbt-postgres>=1.7,<2",
+  "pandas>=2.0,<3",
+  "plotly>=5.20,<7",
+  "prefect>=2.20,<3",
+  "psycopg[binary]>=3.1,<4",
+  "python-dotenv>=1.0,<2",
+  "requests>=2.31,<3",
+  "streamlit>=1.32,<2",
+  "tenacity>=8.2,<10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9", "ruff>=0.6,<1"]
+
+[project.scripts]
+telemetry-ingest = "telemetry_pipeline.ingestion:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"

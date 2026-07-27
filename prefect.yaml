@@ -1,0 +1,18 @@
+name: data-telemetry
+prefect-version: 2.20.0
+
+build: null
+push: null
+pull: null
+
+deployments:
+  - name: local-hourly
+    entrypoint: orchestration/flow.py:telemetry_flow
+    parameters:
+      event_count: 500
+    schedule:
+      cron: "0 * * * *"
+      timezone: "UTC"
+    work_pool:
+      name: local-process
+      work_queue_name: default

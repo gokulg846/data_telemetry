@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: mart_machine_health
+    description: Latest health and degradation signal for each machine.
+    columns:
+      - name: machine_id
+        tests: [not_null, unique]
+      - name: risk_score
+        tests: [not_null]
+  - name: mart_anomaly_events
+    description: Warning and critical events for operator triage.
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: anomaly_type
+        tests:
+          - accepted_values:
+              values:
+                - high_temperature
+                - high_vibration
+                - pressure_out_of_range
+                - warning_threshold
+  - name: mart_line_reliability
+    description: Hourly healthy-event service level by production line.
+    columns:
+      - name: line_id
+        tests: [not_null]
+      - name: healthy_event_pct
+        tests: [not_null]
