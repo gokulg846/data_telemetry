@@ -198,11 +198,5 @@ matters in a PM portfolio: shipped code is not proof of adoption or value.
 6. Review useful-alert rate and missed conditions.
 7. Decide whether CMMS integration or broader rollout is justified.
 
-## Interview prompts this case supports
 
-- How I narrowed a broad data-platform brief to three user decisions.
-- Why I deferred predictive ML despite its portfolio appeal.
-- How product trust influenced freshness, quality, and run-history requirements.
-- How I balanced local speed, cloud credibility, security, and cost.
-- Which evidence is implemented versus which evidence still requires a pilot.
 
