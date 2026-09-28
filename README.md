@@ -18,6 +18,9 @@ Read [architecture.md](architecture.md) for the system design and tradeoffs.
 
 ## Product management portfolio
 
+- [Product implementation plan](docs/PRODUCT_IMPLEMENTATION_PLAN.md) — phased
+  requirements checklist, acceptance criteria, and evidence needed before each
+  feature is marked complete
 - [Product requirements document](docs/PRD.md) — users, requirements,
   acceptance criteria, success metrics, rollout, risks, and open questions
 - [PM portfolio case study](docs/PM_PORTFOLIO_CASE_STUDY.md) — problem framing,
