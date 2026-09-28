@@ -92,8 +92,21 @@ def telemetry_flow(event_count: int = 500, seed: int = 42):
             events_processed=result["inserted"],
             raw_object_key=result["object_key"],
         )
+        if os.getenv("WORKFLOW_URL"):
+            from telemetry_pipeline.workflow_events import enqueue_anomalies, publish_pending
+
+            enqueue_anomalies()
+            publish_pending()
         return result
     except Exception as exc:
+        if os.getenv("WORKFLOW_URL"):
+            try:
+                from telemetry_pipeline.workflow_events import enqueue_failure, publish_pending
+
+                enqueue_failure(run_id, started_at, "Pipeline/dbt/freshness execution failed; inspect run history.")
+                publish_pending()
+            except Exception:
+                print("Workflow event publication failed; inspect pipeline history and retry publisher.")
         try:
             record_run(
                 run_id,
