@@ -203,24 +203,17 @@ sql/                     local warehouse bootstrap
 tests/                   fast unit tests
 ```
 
-## Connect anomaly events to the NCR workflow
+## Integrated anomaly investigation
 
-Set `WORKFLOW_URL=http://127.0.0.1:8000` and `WORKFLOW_TOKEN` to Project 3's producer token.
-After a successful mart build, the flow stages anomaly events in `raw.workflow_outbox` and
-publishes them to `/anomaly-events`. Pipeline/dbt/freshness failures also stage an event.
-Failed deliveries remain in the outbox; rerun `python -m telemetry_pipeline.workflow_events`
-(or schedule it) to retry and catch up, 1000 mart rows/100 deliveries per pass. Repeated
-publication is safe because Project 3 deduplicates by event ID. Run the publisher periodically
-in addition to the flow; an application process is not a durable scheduler.
+With WORKFLOW_URL and WORKFLOW_TOKEN configured, ingestion atomically stages warning/critical
+reading events in raw.workflow_outbox. Failed pipeline/dbt history and failure events also commit
+together. `python -m telemetry_pipeline.workflow_events --watch` independently retries delivery
+and detects stale machines (default 900 seconds). Raw catch-up survives dbt mart replacement.
+Use `python -m telemetry_pipeline.import_file readings.ndjson` to archive/import real data and
+build marts; the original generator command remains explicitly synthetic.
 
-The source schema is the repo's actual `analytics.mart_anomaly_events`; raw event outbox
-storage stays in `raw`. Outbox creation needs DDL permission on the local warehouse.
-A process crash between mart completion and staging is recovered by the next publisher
-pass while mart rows remain available. Historical rows removed before catch-up cannot be
-recovered from the mart; archive-backed replay remains a next step. Standalone stale-data
-scheduling is not implemented. Failure events use generic descriptions to avoid exporting
-credentials from exception messages.
+[One-command three-project setup](https://github.com/gokulg846/agentic-event-systems/blob/main/docs/integrated-startup.md)
+· [Architecture](https://github.com/gokulg846/agentic-event-systems/blob/main/docs/system-architecture.md).
 
-Shared architecture and pending integration work:
-https://github.com/gokulg846/agentic-event-systems/blob/main/docs/system-architecture.md
-No tests or paid services were run for this alignment change.
+The integrated changes are on codex/product-implementation-plan. No tests, paid calls or deployment
+were run during the completion pass. Credentials stay in private local environment/configuration.
