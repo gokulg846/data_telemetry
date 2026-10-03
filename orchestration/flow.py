@@ -68,6 +68,11 @@ def record_run(run_id: uuid.UUID, started_at: datetime, status: str, **updates) 
                     updates.get("error_message"),
                 ),
             )
+        if status == "failed" and os.getenv("WORKFLOW_URL"):
+            from telemetry_pipeline.workflow_events import stage_failure
+
+            stage_failure(connection, run_id, updates.get("finished_at") or started_at,
+                          updates.get("event_type", "pipeline_failure"))
 
 
 def alert(message: str) -> None:
@@ -95,18 +100,13 @@ def telemetry_flow(event_count: int = 500, seed: int = 42):
         if os.getenv("WORKFLOW_URL"):
             from telemetry_pipeline.workflow_events import enqueue_anomalies, publish_pending
 
-            enqueue_anomalies()
-            publish_pending()
-        return result
-    except Exception as exc:
-        if os.getenv("WORKFLOW_URL"):
             try:
-                from telemetry_pipeline.workflow_events import enqueue_failure, publish_pending
-
-                enqueue_failure(run_id, started_at, "Pipeline/dbt/freshness execution failed; inspect run history.")
+                enqueue_anomalies()
                 publish_pending()
             except Exception:
-                print("Workflow event publication failed; inspect pipeline history and retry publisher.")
+                print("Delivery deferred to outbox publisher; ingestion remains successful.")
+        return result
+    except Exception as exc:
         try:
             record_run(
                 run_id,
@@ -114,6 +114,7 @@ def telemetry_flow(event_count: int = 500, seed: int = 42):
                 "failed",
                 finished_at=datetime.now(timezone.utc),
                 error_message=str(exc)[:1000],
+                event_type="dbt_failure" if isinstance(exc, subprocess.CalledProcessError) else "pipeline_failure",
             )
         except Exception as history_error:
             print(f"Could not persist failed run history: {history_error}")

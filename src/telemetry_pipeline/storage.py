@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import json
 import logging
+import os
 from typing import Dict, Iterable, List, Tuple
 import uuid
 
@@ -123,4 +124,11 @@ def load_events(events: List[Dict], settings: Settings) -> int:
     with psycopg.connect(settings.postgres_dsn) as connection:
         with connection.cursor() as cursor:
             cursor.executemany(statement, rows)
-            return cursor.rowcount
+            inserted = cursor.rowcount
+            if os.getenv("WORKFLOW_URL"):
+                from .workflow_events import ensure_outbox, stage_sensor
+
+                ensure_outbox(connection)
+                for row in events:
+                    stage_sensor(connection, row)
+            return inserted
