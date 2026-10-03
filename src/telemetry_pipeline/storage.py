@@ -57,7 +57,7 @@ def s3_client(settings: Settings):
     options = {
         "endpoint_url": settings.s3_endpoint_url or None,
         "region_name": settings.s3_region,
-        "config": Config(retries={"max_attempts": 4, "mode": "adaptive"),
+        "config": Config(retries={"max_attempts": 4, "mode": "adaptive"}),
     }
     # Local MinIO uses explicit credentials. In AWS, omit them so boto3 uses
     # the ECS task role rather than long-lived keys.
